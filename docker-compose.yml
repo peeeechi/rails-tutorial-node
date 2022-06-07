@@ -1,0 +1,43 @@
+version: '3'
+services:
+  backend:
+    container_name: backend
+    build:
+      context: backend
+      dockerfile: Dockerfile
+      args:
+        - USER=${USER}
+        - UID=${UID}
+        - GID=${GID}
+        - PASSWORD=${PASSWORD}
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    volumes:
+      - ./backend/workspace:/home/${USER}/workspace
+    command: /bin/bash
+    tty: true
+    ports:
+      - ${BACKEND_PORT}:3000
+
+  db:
+    container_name: db
+    image: postgres:11-alpine
+    ports:
+      - ${POSTGRES_PORT}:5432
+    environment:
+      LANG: ja_JP.utf8
+
+      # このオプションの環境変数は、ユーザーとそのパスワードを設定するためにと組み合わせて使用​​されます。
+      # この変数は、スーパーユーザー権限を持つ指定されたユーザーと同じ名前のデータベースを作成します。
+      # 指定しない場合は、のデフォルトユーザーpostgresが使用されます。
+      POSTGRES_USER: ${POSTGRES_USER}
+
+      # 必須
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+      # このオプションの環境変数を使用して、イメージが最初に開始されたときに作成されるデフォルトデータベースに別の名前を定義できます。
+      # 指定しない場合は、の値POSTGRES_USERが使用されます。
+      POSTGRES_DB: ${POSTGRES_DB}
